@@ -2,21 +2,26 @@ from rest_framework import serializers
 from .models import *
 
 
-class OwnerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Owner
-        fields = '__all__'
+# class OwnerSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Owner
+#         fields = '__all__'
+#
+#
+# class InvestorSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Investor
+#         fields = '__all__'
 
 
-class InvestorSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Investor
+        model = newUser
         fields = '__all__'
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    #owners = OwnerSerializer(many=True)
-    #investors = InvestorSerializer(many=True)
+    user = UserSerializer(many=True)
 
     class Meta:
         model = Organization
@@ -24,7 +29,6 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
-    investors = InvestorSerializer(read_only=True)
 
     class Meta:
         model = Investment

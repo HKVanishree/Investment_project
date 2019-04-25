@@ -1,60 +1,82 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from .models import Owner,Organization,Investor,Investment
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import OwnerSerializer, OrganizationSerializer,InvestorSerializer
-from django.contrib.auth.models import User
-
-# def setOwner(name,owner):
-#         owner=Owner.objects.get(user_name=name)
+from .serializers import UserSerializer, OrganizationSerializer, InvestmentSerializer
+from .models import newUser, Organization, Investment
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 @api_view(["POST", "GET"])
 def registerUser(request):
     if request.method == "POST":
-      name = request.data.get("username")
-      email = request.data.get("email")
-      password = request.data.get("password")
-      #owner_id=request.data.get("owner_id")
-      user = User.objects.create_user(username=name, password=password, email=email)
-      Owner.objects.create(user=user)
-      return Response({"message": "Owner created"})
-    owners = Owner.objects.all()
-    serializer = OwnerSerializer(owners, many=True)
-    return Response(status=200, data=serializer.data)
+        email = request.data.get("email")
+        password = request.data.get("password")
+        isOwner = request.data.get("isOwner")
+        isInvestor = request.data.get("isInvestor")
+        address = request.data.get("address")
+        newUser.objects.create_user(email, password, isInvestor, isOwner, address)
+        return Response({"message": "Owner created"})
+    if request.method == "GET":
+        users = newUser.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(status=200, data=serializer.data)
 
 
 @api_view(["POST", "GET"])
 def createOrganizationModel(request):
     if request.method == "POST":
-      name = request.data.get("organization_name")
-      bgt = request.data.get("budget")
-      id = request.data.get("owner_id")
-      org_id = request.data.get("organization_id")
-      owner = Owner.objects.get(pk=id)
-      Organization.objects.create(organization_name=name, budget=bgt, owner=owner ,organization_id=org_id)
-      return Response({"message": "Organization created"})
-    organizations = Organization.objects.all()
-    serializer = OrganizationSerializer(organizations, many=True)
-    return Response(status=200, data=serializer.data)
+        name = request.data.get("organization_name")
+        bgt = request.data.get("budget")
+        owner_id = request.data.get("owner_id")
+        org_id = request.data.get("organization_id")
+        user = newUser.objects.get(pk=owner_id)
+        if user.isOwner:
+            Organization.objects.create(organization_name=name, budget=bgt, user=user, organization_id=org_id)
+            return Response("Organization created")
+        else:
+            return Response("Not a Owner")
+    if request.method == "GET":
+        organizations = Organization.objects.all()
+        serializer = OrganizationSerializer(organizations, many=True)
+        return Response(status=200, data=serializer.data)
 
 
 @api_view(["POST", "GET"])
-def createInvestorModel(request):
+def createInvestmentModel(request):
     if request.method == "POST":
-        name = request.data.get("investor_name")
-        orgkey = request.data.get("organization_id")
+        investor_id = request.data.get("investor_id")
+        organization_id = request.data.get("organization_id")
         amount = request.data.get("amount")
         invested_date = request.data.get("date_of_investment")
-        investor = Investor.objects.create(investor_name=name)
-        organisation = Organization.objects.get(organization_id=orgkey)
-        Investment.objects.create(amount=amount, date_of_investment=invested_date, investor=investor,
-                                  organization=organisation)
-        return Response({"message": "Investor created"})
+        investor = newUser.objects.get(pk=investor_id)
+        if investor.isInvestor:
+            organization = Organization.objects.get(organization_id=organization_id)
+            Investment.objects.create(amount=amount, date_of_investment=invested_date, user=investor,
+                                      organization=organization)
+            return Response({"message": "Investor created"})
+        else:
+            return Response(status=404, data="Not an investor")
     if request.method == "GET":
-        return Response({"message": "Investor created"})
+        investment = Investment.objects.all()
+        serializer = InvestmentSerializer(investment, many=True)
+        return Response(status=200, data=serializer.data)
 
+
+@api_view(["GET"])
+def getInvestorsOfAnOrganization(request, org_id):
+    #orgId=5
+    organization = Organization.objects.get(organization_id=org_id)
+    investors = organization.user.all()
+    serializer = UserSerializer(investors, many=True)
+    return Response(status=200, data=serializer.data)
+
+@api_view(["GET"])
+def getOrganizationsOfAnOwner(request, owner_id):
+    owner = newUser.objects.get(pk=owner_id)
+    organizations = Organization.objects.filter(user=owner)
+    serializer = OrganizationSerializer(organizations, many=True)
+    return Response(status=200, data=serializer.data)
 
 
 
