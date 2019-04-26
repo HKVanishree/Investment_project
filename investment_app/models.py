@@ -48,14 +48,4 @@ class Investment(models.Model):
     amount = models.IntegerField()
     date_of_investment = models.DateField()
 
-# class Owner(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-# owner_id = models.IntegerField()
-# owner_name = models.CharField(max_length=30)
-# email = models.EmailField()
 
-
-# class Investor(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-# investor_name = models.CharField(max_length=30)
-# organization = models.ManyToManyField(Organization, through='Investment')
