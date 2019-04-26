@@ -7,7 +7,7 @@ from .managers import UserManager
 from django.core.mail import send_mail
 
 
-"""Extended python user with added fields isOwner  and isInvestor"""
+"""Extended python user with added fields address, isOwner  and isInvestor"""
 
 
 class newUser(AbstractBaseUser, PermissionsMixin):
@@ -38,11 +38,20 @@ class newUser(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
+    def setOwner(self, val):
+        self.isOwner = val
+        self.save()
+
+    def setInvestor(self, val):
+        self.isInvestor = val
+        self.save()
+
 
 class Organization(models.Model):
     organization_id = models.IntegerField()
     organization_name = models.CharField(max_length=30)
-    user = models.ManyToManyField(newUser, through='Investment')
+    owner = models.ForeignKey(newUser, on_delete=models.CASCADE)
+    investor = models.ManyToManyField(newUser, related_name="investorsList",through='Investment')
 
 
 class Investment(models.Model):

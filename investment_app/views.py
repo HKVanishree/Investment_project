@@ -6,6 +6,7 @@ from .models import newUser, Organization, Investment
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
 """Register new User either as investor or owner"""
 @api_view(["POST", "GET"])
 def registerUser(request):
@@ -31,13 +32,15 @@ def createOrganizationModel(request):
         name = request.data.get("organization_name")
         bgt = request.data.get("budget")
         owner_id = request.data.get("owner_id")
+        owner = newUser.objects.get(pk=owner_id)
+        owner.setOwner(True)
         org_id = request.data.get("organization_id")
-        user = newUser.objects.get(pk=owner_id)
+        # user = newUser.objects.get(pk=owner_id)
        except:
            return Response({'error':'Could not register Organization due to null fields'},status=400)
-       if user.isOwner:
+       if owner.isOwner:
            try:
-            Organization.objects.create(organization_name=name, budget=bgt, user=user, organization_id=org_id)
+            Organization.objects.create(organization_name=name, budget=bgt, owner=owner, organization_id=org_id)
             return Response("Organization created")
            except:
                return Response("Organization not created")
@@ -62,6 +65,7 @@ def createInvestmentModel(request):
             amount = request.data.get("amount")
             invested_date = request.data.get("date_of_investment")
             investor = newUser.objects.get(pk=investor_id)
+            investor.setInvestor(True)
         except:
             return Response(status=404, data="Could not create investors due to null fields")
         if investor.isInvestor:
@@ -77,10 +81,13 @@ def createInvestmentModel(request):
     if request.method == "GET":
         try:
             investment = Investment.objects.all()
+        except:
+            return Response(status=404, data="Could not retrieve list of investors")
+        try:
             serializer = InvestmentSerializer(investment, many=True)
             return Response(status=200, data=serializer.data)
         except:
-            return Response(status=404, data="Could not retrieve list of investors")
+            return Response(status=404, data="Problem with serializer")
 
 
 """List of investors and their details for a particular organization"""
@@ -88,7 +95,12 @@ def createInvestmentModel(request):
 def getInvestorsOfAnOrganization(request, org_id):
     try:
         organization = Organization.objects.get(organization_id=org_id)
-        investors = organization.user.all()
+    except:
+        return Response(status=404, data="could not retrieve organizations")
+    try:
+        investors = organization.investor.all()
+        # investment = Investment.objects.filter(organization=organization)
+        # serializer1 = InvestmentSerializer(investment, many=True)
         serializer = UserSerializer(investors, many=True)
         return Response(status=200, data=serializer.data)
     except:
@@ -104,7 +116,7 @@ def getOrganizationsOfAnOwner(request, owner_id):
         serializer = OrganizationSerializer(organizations, many=True)
         return Response(status=200, data=serializer.data)
     except:
-        return Response(status=404, data="Owner eith that primary key does not exist")
+        return Response(status=404, data="Owner with that primary key does not exist")
 
 
 

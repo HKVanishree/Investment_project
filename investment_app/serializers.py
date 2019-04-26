@@ -5,11 +5,11 @@ from .models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = newUser
-        fields = '__all__'
+        fields = ('id', 'email', 'address')
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    user = UserSerializer(many=True)
+    owner = UserSerializer(many=True)
 
     class Meta:
         model = Organization
@@ -17,7 +17,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
-    owner = UserSerializer()
+    user = UserSerializer()
     organization = OrganizationSerializer()
 
     class Meta:
