@@ -7,7 +7,6 @@ urlpatterns = [
     url('user/', views.registerUser, name='registerUser'),
     url('organization/', views.createOrganizationModel, name='createOrganizationModel'),
     url('invest/', views.createInvestmentModel, name='createInvestmentModel'),
-    #url('investors/<orgId>/', views.getInvestorsOfAnOrganization, name='getInvestorsOfAnOrganization')
     path('investors/<int:org_id>/', views.getInvestorsOfAnOrganization),
     path('organizations/<int:owner_id>/', views.getOrganizationsOfAnOwner)
 ]

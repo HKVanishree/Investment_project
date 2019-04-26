@@ -2,18 +2,6 @@ from rest_framework import serializers
 from .models import *
 
 
-# class OwnerSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Owner
-#         fields = '__all__'
-#
-#
-# class InvestorSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Investor
-#         fields = '__all__'
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = newUser
@@ -29,13 +17,9 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
+    owner = UserSerializer()
+    organization = OrganizationSerializer()
 
     class Meta:
         model = Investment
         fields = '__all__'
-
-
-# class ModelSerializer(serializers.Serializer):
-#     owner_name = serializers.CharField()
-#     email = serializers.EmailField()
-#     fields = ('owner_name', 'email')

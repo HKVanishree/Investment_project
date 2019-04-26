@@ -7,6 +7,9 @@ from .managers import UserManager
 from django.core.mail import send_mail
 
 
+"""Extended python user with added fields isOwner  and isInvestor"""
+
+
 class newUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)

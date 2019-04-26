@@ -6,7 +6,7 @@ from .models import newUser, Organization, Investment
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-
+"""Register new User either as investor or owner"""
 @api_view(["POST", "GET"])
 def registerUser(request):
     if request.method == "POST":
@@ -23,6 +23,7 @@ def registerUser(request):
         return Response(status=200, data=serializer.data)
 
 
+"""Register an organization for a Owner"""
 @api_view(["POST", "GET"])
 def createOrganizationModel(request):
     if request.method == "POST":
@@ -51,9 +52,7 @@ def createOrganizationModel(request):
         return Response(status=200, data=serializer.data)
 
 
-
-
-
+"""Invest into an organization"""
 @api_view(["POST", "GET"])
 def createInvestmentModel(request):
     if request.method == "POST":
@@ -84,7 +83,7 @@ def createInvestmentModel(request):
             return Response(status=404, data="Could not retrieve list of investors")
 
 
-
+"""List of investors and their details for a particular organization"""
 @api_view(["GET"])
 def getInvestorsOfAnOrganization(request, org_id):
     try:
@@ -96,12 +95,17 @@ def getInvestorsOfAnOrganization(request, org_id):
         return Response(status=404, data="Could not retrieve list of investors")
 
 
+"""List of organizations owned by an owner"""
 @api_view(["GET"])
 def getOrganizationsOfAnOwner(request, owner_id):
-    owner = newUser.objects.get(pk=owner_id)
-    organizations = Organization.objects.filter(user=owner)
-    serializer = OrganizationSerializer(organizations, many=True)
-    return Response(status=200, data=serializer.data)
+    try:
+        owner = newUser.objects.get(pk=owner_id)
+        organizations = Organization.objects.filter(user=owner)
+        serializer = OrganizationSerializer(organizations, many=True)
+        return Response(status=200, data=serializer.data)
+    except:
+        return Response(status=404, data="Owner eith that primary key does not exist")
+
 
 
 
